@@ -32,6 +32,8 @@ return new class extends Migration
             $table->string('kategori_aset', 20); //varchar(20)
             $table->double('sewa_harian_mobil'); //double
             $table->integer('volume_bagasi'); //integer
+            $table->string('foto_mobil'); //varchar(255)
+            $table->string('status_mobil', 30); //varchar(30)
             $table->timestamps();
         });
     }

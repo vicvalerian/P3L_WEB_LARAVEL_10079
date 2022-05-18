@@ -48,6 +48,23 @@ class MobilController extends Controller
         ],404);
     }
 
+    public function mobilByStatus(){
+        $status = 'Tersedia';
+        $mobil = Mobil_10079::where('status_mobil', $status)->get();
+
+        if(count($mobil)>0){
+            return response ([
+                'message' => 'Retrieve All Mobil Success',
+                'data' => $mobil
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Empty',
+            'data' => null
+        ], 400);
+    }
+
     public function store (Request $request){
         $storeData = $request->all();
 
@@ -64,7 +81,9 @@ class MobilController extends Controller
             'fasilitas_mobil' => 'required',
             'no_stnk' => 'required',
             'sewa_harian_mobil' => 'required',
-            'volume_bagasi' => 'required'
+            'volume_bagasi' => 'required',
+            'foto_mobil' => 'required|max:1024|mimes:jpg,png,jpeg|image',
+            'status_mobil' => 'required'
         ]);
 
         if(!is_null($request->id_pemilik)){
@@ -72,6 +91,8 @@ class MobilController extends Controller
         } else{
             $kategoriAset = 'Milik AJR';
         }
+
+        $uploadFotoMobil = $request->foto_mobil->store('img_mobil', ['disk' => 'public']);
 
         if($validate->fails()){
             return response(['message' => $validate->errors()], 400);
@@ -92,6 +113,8 @@ class MobilController extends Controller
             'kategori_aset' => $kategoriAset,
             'sewa_harian_mobil' => $request->sewa_harian_mobil,
             'volume_bagasi' => $request->volume_bagasi,
+            'foto_mobil' => $uploadFotoMobil,
+            'status_mobil' => $request->status_mobil,
         ]);
         return response([
            'message' => 'Add Mobil Success',
@@ -144,7 +167,9 @@ class MobilController extends Controller
             'fasilitas_mobil' => 'required',
             'no_stnk' => 'required',
             'sewa_harian_mobil' => 'required',
-            'volume_bagasi' => 'required'
+            'volume_bagasi' => 'required',
+            'foto_mobil' => 'max:1024|mimes:jpg,png,jpeg|image',
+            'status_mobil' => 'required'
         ]);
 
         if(!is_null($request->id_pemilik)){
@@ -153,14 +178,19 @@ class MobilController extends Controller
             $kategoriAset = 'Milik AJR';
         }
 
-        if($validate->fails())
-            return response(['message' => $validate->errors()], 400);
+        if(isset($request->foto_mobil)){
+            $uploadFotoMobil = $request->foto_mobil->store('img_mobil', ['disk' => 'public']);
+            $mobil->foto_mobil = $uploadFotoMobil;
+        }
 
         if(!is_null($request->id_pemilik)){
             $mobil->id_pemilik = $updateData['id_pemilik'];
         } else{
             $mobil->id_pemilik = null;
         }
+
+        if($validate->fails())
+            return response(['message' => $validate->errors()], 400);
         
         $mobil->nama_mobil = $updateData['nama_mobil'];
         $mobil->tipe_mobil = $updateData['tipe_mobil'];
@@ -174,6 +204,7 @@ class MobilController extends Controller
         $mobil->kategori_aset = $kategoriAset;
         $mobil->sewa_harian_mobil = $updateData['sewa_harian_mobil'];
         $mobil->volume_bagasi = $updateData['volume_bagasi'];
+        $mobil->status_mobil = $updateData['status_mobil'];
 
         if($mobil->save()){
             return response([

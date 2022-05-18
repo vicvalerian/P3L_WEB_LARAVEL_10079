@@ -42,6 +42,23 @@ class PromoController extends Controller
         ],404);
     }
 
+    public function indexByStatus(){
+        $status = 'Aktif';
+        $promo = Promo_10079::where('status_promo', $status)->get();
+
+        if(count($promo)>0){
+            return response ([
+                'message' => 'Retrieve All Promo Success',
+                'data' => $promo
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Empty',
+            'data' => null
+        ], 400);
+    }
+
     public function store (Request $request){
         $storeData = $request->all();
 

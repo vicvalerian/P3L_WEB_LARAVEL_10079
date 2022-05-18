@@ -15,7 +15,7 @@ class Mobil_10079 extends Model
         'id_mobil', 'plat_mobil', 'id_pemilik', 'nama_mobil', 'tipe_mobil',
         'jenis_transmisi', 'jenis_bahan_bakar', 'volume_bahan_bakar', 'warna_mobil',
         'kapasitas_penumpang', 'fasilitas_mobil', 'no_stnk', 'kategori_aset',
-        'sewa_harian_mobil', 'volume_bagasi'
+        'sewa_harian_mobil', 'volume_bagasi', 'foto_mobil', 'status_mobil'
     ];
 
     public function Mobil_Pemilik(){

@@ -17,13 +17,62 @@ class TransaksiController extends Controller
         $transaksi = DB::table('transaksi_10079s') 
                         ->join('pelanggan_10079s', 'pelanggan_10079s.id_pelanggan', '=', 'transaksi_10079s.id_pelanggan')
                         ->leftJoin('promo_10079s', 'promo_10079s.id_promo', '=', 'transaksi_10079s.id_promo')
-                        ->join('pegawai_10079s', 'pegawai_10079s.id_pegawai', '=', 'transaksi_10079s.id_pegawai')
+                        ->leftJoin('pegawai_10079s', 'pegawai_10079s.id_pegawai', '=', 'transaksi_10079s.id_pegawai')
                         ->select('transaksi_10079s.*', 'pelanggan_10079s.id_pelanggan', 'pelanggan_10079s.nama_pelanggan', 'promo_10079s.id_promo', 'promo_10079s.kode_promo', 'promo_10079s.diskon_promo', 'pegawai_10079s.id_pegawai', 'pegawai_10079s.nama_pegawai')
                         ->get();
 
         if(count($transaksi)>0){
             return response ([
                 'message' => 'Retrieve All Transaksi Success',
+                'data' => $transaksi
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Empty',
+            'data' => null
+        ], 400);
+    }
+
+    public function showByPelanggan($id_pelanggan){
+        // $transaksi = Transaksi_10079::where('id_pelanggan', $id_pelanggan)->get();
+
+        $transaksi = DB::table('transaksi_10079s') 
+                        ->join('pelanggan_10079s', 'pelanggan_10079s.id_pelanggan', '=', 'transaksi_10079s.id_pelanggan')
+                        ->leftJoin('promo_10079s', 'promo_10079s.id_promo', '=', 'transaksi_10079s.id_promo')
+                        ->leftJoin('pegawai_10079s', 'pegawai_10079s.id_pegawai', '=', 'transaksi_10079s.id_pegawai')
+                        ->select('transaksi_10079s.*', 'pelanggan_10079s.id_pelanggan', 'pelanggan_10079s.nama_pelanggan', 'promo_10079s.id_promo', 'promo_10079s.kode_promo', 'promo_10079s.diskon_promo', 'pegawai_10079s.id_pegawai', 'pegawai_10079s.nama_pegawai')
+                        ->where('transaksi_10079s.id_pelanggan', '=', $id_pelanggan)
+                        ->get();
+
+        if(count($transaksi)>0){
+            return response ([
+                'message' => 'Retrieve All Transaksi Pelanggan Success',
+                'data' => $transaksi
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Empty',
+            'data' => null
+        ], 400);
+    }
+
+    public function showVerifiedByPelanggan($id_pelanggan){
+        // $transaksi = Transaksi_10079::where('id_pelanggan', $id_pelanggan)->get();
+
+        $transaksi = DB::table('transaksi_10079s') 
+                        ->join('pelanggan_10079s', 'pelanggan_10079s.id_pelanggan', '=', 'transaksi_10079s.id_pelanggan')
+                        ->leftJoin('promo_10079s', 'promo_10079s.id_promo', '=', 'transaksi_10079s.id_promo')
+                        ->leftJoin('pegawai_10079s', 'pegawai_10079s.id_pegawai', '=', 'transaksi_10079s.id_pegawai')
+                        ->select('transaksi_10079s.*', 'pelanggan_10079s.id_pelanggan', 'pelanggan_10079s.nama_pelanggan', 'promo_10079s.id_promo', 'promo_10079s.kode_promo', 'promo_10079s.diskon_promo', 'pegawai_10079s.id_pegawai', 'pegawai_10079s.nama_pegawai')
+                        ->where('transaksi_10079s.id_pelanggan', '=', $id_pelanggan)
+                        ->whereNotNull('transaksi_10079s.id_pegawai')
+                        ->get();
+
+        if(count($transaksi)>0){
+            return response ([
+                'message' => 'Retrieve All Transaksi Pelanggan Success',
                 'data' => $transaksi
             ], 200);
         }
@@ -56,11 +105,9 @@ class TransaksiController extends Controller
         $validate = Validator::make($storeData, [
             'id_pelanggan' => 'required',
             'id_promo' => 'nullable',
-            'id_pegawai' => 'required',
+            'id_pegawai' => 'nullable',
             'tgl_transaksi' => 'required|date:ymd',
             'metode_pembayaran' => 'required',
-            'status_transaksi' => 'required',
-            'status_dokumen' => 'required',
         ]);
 
         $get_data = Transaksi_10079::orderBy('id_transaksi','DESC')->first();
@@ -83,8 +130,6 @@ class TransaksiController extends Controller
             'id_pegawai' => $request->id_pegawai,
             'tgl_transaksi' => $request->tgl_transaksi,
             'metode_pembayaran' => $request->metode_pembayaran,
-            'status_transaksi' => $request->status_transaksi,
-            'status_dokumen' => $request->status_dokumen,
         ]);
         return response([
             'message' => 'Add Transaksi Success',
@@ -130,8 +175,6 @@ class TransaksiController extends Controller
             'id_pegawai' => 'required',
             'tgl_transaksi' => 'required|date:ymd',
             'metode_pembayaran' => 'required',
-            'status_transaksi' => 'required',
-            'status_dokumen' => 'required',
         ]);
 
         if($validate->fails())
@@ -141,8 +184,42 @@ class TransaksiController extends Controller
         $transaksi->id_pegawai = $updateData['id_pegawai'];
         $transaksi->tgl_transaksi = $updateData['tgl_transaksi'];
         $transaksi->metode_pembayaran = $updateData['metode_pembayaran'];
-        $transaksi->status_transaksi = $updateData['status_transaksi'];
-        $transaksi->status_dokumen = $updateData['status_dokumen'];
+
+        if($transaksi->save()){
+            return response([
+                'message' => 'Update Transaksi Success',
+                'data' => $transaksi
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Update Transaksi Success',
+            'data' => null,
+        ], 400);
+    }
+
+    public function updatePelanggan(Request $request, $id_transaksi){
+        $transaksi = Transaksi_10079::where('id_transaksi', $id_transaksi)->first();
+        if(is_null($transaksi)){
+            return response([
+                'message' => 'Transaksi Not Found',
+                'data' => null
+            ], 404);
+        }
+
+        $updateData = $request->all();
+        $validate = Validator::make($updateData, [
+            'id_promo' => 'nullable',
+            'tgl_transaksi' => 'required|date:ymd',
+            'metode_pembayaran' => 'required',
+        ]);
+
+        if($validate->fails())
+            return response(['message' => $validate->errors()], 400);
+
+        $transaksi->id_promo = $updateData['id_promo'];
+        $transaksi->tgl_transaksi = $updateData['tgl_transaksi'];
+        $transaksi->metode_pembayaran = $updateData['metode_pembayaran'];
 
         if($transaksi->save()){
             return response([

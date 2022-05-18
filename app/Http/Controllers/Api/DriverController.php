@@ -29,6 +29,43 @@ class DriverController extends Controller
         ], 400);
     }
 
+    public function driverByStatus(){
+        $status = 'Tersedia';
+        $driver = Driver_10079::where('status_driver', $status)->get();
+
+        if(count($driver)>0){
+            return response ([
+                'message' => 'Retrieve All Driver Success',
+                'data' => $driver
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Empty',
+            'data' => null
+        ], 400);
+    }
+
+    public function driverByTransaksi(){
+        $driver = DB::table('driver_10079s') 
+                        ->join('detail__transaksi_10079s', 'detail__transaksi_10079s.id_driver', '=', 'driver_10079s.id_driver')
+                        ->select('driver_10079s.*', 'detail__transaksi_10079s.id_detail_transaksi', 'detail__transaksi_10079s.rating_driver_transaksi')
+                        ->orderBy('driver_10079s.id_driver', 'asc')
+                        ->get();
+
+        if(count($driver)>0){
+            return response ([
+                'message' => 'Retrieve All Driver Success',
+                'data' => $driver
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Empty',
+            'data' => null
+        ], 400);
+    }
+
     public function show($id_driver){
         $driver = Driver_10079::where('id_driver', $id_driver)->first();
 
@@ -155,6 +192,10 @@ class DriverController extends Controller
             'notelp_driver' => 'required|numeric|digits_between:0,13|starts_with:08',
             'email_driver' => ['required', 'email:rfc,dns', Rule::unique('driver_10079s')->ignore($driver)],
             'sewa_harian_driver' => 'required',
+            'sim_driver' => 'max:1024|mimes:jpg,png,jpeg|image',
+            'surat_bebas_napza' => 'max:1024|mimes:jpg,png,jpeg|image',
+            'surat_jiwa_jasmani' => 'max:1024|mimes:jpg,png,jpeg|image',
+            'skck_driver' => 'max:1024|mimes:jpg,png,jpeg|image',
             'status_driver' => 'required',
             'password_driver' => 'nullable'
         ]);
@@ -184,6 +225,26 @@ class DriverController extends Controller
         if(isset($request->foto_driver)){
             $uploadFotoDriver = $request->foto_driver->store('img_driver', ['disk' => 'public']);
             $driver->foto_driver = $uploadFotoDriver;
+        }
+
+        if(isset($request->sim_driver)){
+            $uploadSimDriver = $request->sim_driver->store('img_driver', ['disk' => 'public']);
+            $driver->sim_driver = $uploadSimDriver;
+        }
+
+        if(isset($request->surat_bebas_napza)){
+            $uploadNapzaDriver = $request->surat_bebas_napza->store('img_driver', ['disk' => 'public']);
+            $driver->surat_bebas_napza = $uploadNapzaDriver;
+        }
+
+        if(isset($request->surat_jiwa_jasmani)){
+            $uploadJasmaniDriver = $request->surat_jiwa_jasmani->store('img_driver', ['disk' => 'public']);
+            $driver->surat_jiwa_jasmani = $uploadJasmaniDriver;
+        }
+
+        if(isset($request->skck_driver)){
+            $uploadSkckDriver = $request->skck_driver->store('img_driver', ['disk' => 'public']);
+            $driver->skck_driver = $uploadSkckDriver;
         }
 
         $driver->notelp_driver = $updateData['notelp_driver'];

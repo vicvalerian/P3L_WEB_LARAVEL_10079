@@ -14,7 +14,7 @@ class Transaksi_10079 extends Model
 
     protected $fillable = [
         'id_transaksi', 'id_pelanggan', 'id_promo', 'id_pegawai',
-        'tgl_transaksi', 'metode_pembayaran', 'status_transaksi', 'status_dokumen'
+        'tgl_transaksi', 'metode_pembayaran'
     ];
 
     public function Transaksi_Pelanggan(){

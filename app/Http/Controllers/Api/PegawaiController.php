@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Validator;
 use App\Models\Pegawai_10079;
+use App\Models\Detail_Jadwal_10079;
 use Illuminate\Support\Facades\Hash;
 use DB;
 
@@ -19,6 +20,28 @@ class PegawaiController extends Controller
                     ->join('jabatan_10079s', 'pegawai_10079s.id_jabatan', '=', 'jabatan_10079s.id_jabatan')
                     ->select('pegawai_10079s.*', 'jabatan_10079s.id_jabatan', 'jabatan_10079s.nama_jabatan')
                     ->get();
+
+        if(count($pegawai)>0){
+            return response ([
+                'message' => 'Retrieve All Pegawai Success',
+                'data' => $pegawai
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Empty',
+            'data' => null
+        ], 400);
+    }
+
+    public function getDetailJadwalPegawai(){
+        $pegawai = DB::table('pegawai_10079s')
+                        ->leftJoin('detail__jadwal_10079s', 'detail__jadwal_10079s.id_pegawai', '=', 'pegawai_10079s.id_pegawai')
+                        ->leftJoin('jadwal_10079s', 'jadwal_10079s.id_jadwal_pegawai', '=', 'detail__jadwal_10079s.id_jadwal_pegawai')
+                        ->select('pegawai_10079s.id_pegawai', 'pegawai_10079s.nama_pegawai', 'jadwal_10079s.id_jadwal_pegawai', 'jadwal_10079s.hari_pegawai', 'jadwal_10079s.shift_pegawai', DB::raw('count(detail__jadwal_10079s.id_pegawai) AS jumlah_shift'))
+                        ->groupBy('pegawai_10079s.id_pegawai')
+                        ->having(DB::raw('count(detail__jadwal_10079s.id_pegawai)'), '<', 6)
+                        ->get();
 
         if(count($pegawai)>0){
             return response ([

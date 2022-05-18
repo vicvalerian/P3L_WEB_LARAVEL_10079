@@ -27,8 +27,6 @@ return new class extends Migration
 
             $table->date('tgl_transaksi'); //date
             $table->string('metode_pembayaran', 30); //varchar(30)
-            $table->string('status_transaksi', 50); //varchar(50)
-            $table->string('status_dokumen', 50); //varchar(50)
             $table->timestamps();
         });
     }

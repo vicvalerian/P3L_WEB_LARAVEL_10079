@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Validator;
 use App\Models\Pemilik_10079;
+use Carbon\Carbon;
+use DB;
 
 class PemilikController extends Controller
 {
@@ -16,6 +18,26 @@ class PemilikController extends Controller
         if(count($pemilik)>0){
             return response ([
                 'message' => 'Retrieve All Pemilik Success',
+                'data' => $pemilik
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Empty',
+            'data' => null
+        ], 400);
+    }
+
+    public function getKontrakMobil(){
+        $pemilik = DB::table('mobil_10079s')
+                    ->join('pemilik_10079s', 'mobil_10079s.id_pemilik', '=', 'pemilik_10079s.id_pemilik')
+                    ->select('mobil_10079s.*', 'pemilik_10079s.*')
+                    ->whereRaw("DATEDIFF(pemilik_10079s.periode_kontrak_akhir, '".Carbon::now()."') < 30")
+                    ->get();
+
+        if(count($pemilik)>0){
+            return response ([
+                'message' => 'Retrieve All Kontrak Mobil Success',
                 'data' => $pemilik
             ], 200);
         }

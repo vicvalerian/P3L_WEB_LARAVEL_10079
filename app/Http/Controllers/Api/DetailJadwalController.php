@@ -52,6 +52,18 @@ class DetailJadwalController extends Controller
     public function store (Request $request){
         $storeData = $request->all();
 
+        $cekJadwal = DB::table('detail__jadwal_10079s')
+                    ->where('id_pegawai', $request->id_pegawai)
+                    ->where('id_jadwal_pegawai', $request->id_jadwal_pegawai)
+                    ->first();
+
+        if($cekJadwal){
+            return response([
+                'message' => 'Pegawai Tidak Boleh Memiliki Jadwal Yang Sama',
+                'data' => null
+            ],404);
+        }
+
         $validate = Validator::make($storeData, [
             'id_pegawai' => 'required',
             'id_jadwal_pegawai' => 'required',
@@ -94,11 +106,24 @@ class DetailJadwalController extends Controller
 
     public function update(Request $request, $id_detail_jadwal){
         $detailJadwal = Detail_Jadwal_10079::where('id_detail_jadwal', $id_detail_jadwal)->first();
+
         if(is_null($detailJadwal)){
             return response([
                 'message' => 'Detail Jadwal Not Found',
                 'data' => null
             ], 404);
+        }
+
+        $cekJadwal = DB::table('detail__jadwal_10079s')
+                    ->where('id_pegawai', $request->id_pegawai)
+                    ->where('id_jadwal_pegawai', $request->id_jadwal_pegawai)
+                    ->first();
+
+        if($cekJadwal){
+            return response([
+                'message' => 'Pegawai Tidak Boleh Memiliki Jadwal Yang Sama',
+                'data' => null
+            ],404);
         }
 
         $updateData = $request->all();

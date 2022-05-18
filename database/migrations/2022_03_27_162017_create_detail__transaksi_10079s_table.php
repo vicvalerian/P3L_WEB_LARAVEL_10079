@@ -27,11 +27,14 @@ return new class extends Migration
             
             $table->dateTime('tgl_waktu_mulai_sewa'); //date time
             $table->dateTime('tgl_waktu_akhir_sewa'); //date time
-            $table->dateTime('tgl_pengembalian'); //date
+            $table->dateTime('tgl_pengembalian')->nullable(); //date
             $table->string('jenis_transaksi', 30); //varchar(30)
             $table->double('rating_driver_transaksi')->nullable(); //double
+            $table->double('diskon_transaksi'); //double
             $table->double('denda_transaksi'); //double
             $table->double('jumlah_pembayaran'); //double
+            $table->string('bukti_pembayaran')->nullable();
+            $table->string('status_transaksi');
             $table->timestamps();
         });
     }

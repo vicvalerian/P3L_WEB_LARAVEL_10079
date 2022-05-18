@@ -14,6 +14,9 @@ use App\Http\Controllers\Api\DetailJadwalController;
 use App\Http\Controllers\Api\TransaksiController;
 use App\Http\Controllers\Api\DetailTransaksiController;
 
+//Tambahan PDF
+use App\Http\Controllers\Api\NotaPembayaranController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -42,12 +45,14 @@ Route::delete('jabatan/{id_jabatan}', 'App\Http\Controllers\Api\JabatanControlle
 //Promo
 Route::get('promo', 'App\Http\Controllers\Api\PromoController@index');
 Route::get('promo/{id_promo}', 'App\Http\Controllers\Api\PromoController@show');
+Route::get('statusPromo', 'App\Http\Controllers\Api\PromoController@indexByStatus');
 Route::post('promo', 'App\Http\Controllers\Api\PromoController@store');
 Route::post('promo/{id_promo}', [PromoController::class,'update']);
 Route::delete('promo/{id_promo}', 'App\Http\Controllers\Api\PromoController@destroy');
 
 //Pemilik
 Route::get('pemilik', 'App\Http\Controllers\Api\PemilikController@index');
+Route::get('kontrakMobil', 'App\Http\Controllers\Api\PemilikController@getKontrakMobil');
 Route::get('pemilik/{no_ktp_pemilik}', 'App\Http\Controllers\Api\PemilikController@show');
 Route::post('pemilik', 'App\Http\Controllers\Api\PemilikController@store');
 Route::post('pemilik/{no_ktp_pemilik}', [PemilikController::class,'update']);
@@ -56,6 +61,8 @@ Route::delete('pemilik/{no_ktp_pemilik}', 'App\Http\Controllers\Api\PemilikContr
 //Driver
 Route::get('driver', 'App\Http\Controllers\Api\DriverController@index');
 Route::get('driver/{id_driver}', 'App\Http\Controllers\Api\DriverController@show');
+Route::get('statusDriver', 'App\Http\Controllers\Api\DriverController@driverByStatus');
+Route::get('transaksiDriver', 'App\Http\Controllers\Api\DriverController@driverByTransaksi');
 Route::post('driver', 'App\Http\Controllers\Api\DriverController@store');
 Route::post('driver/{id_driver}', [DriverController::class,'update']);
 Route::delete('driver/{id_driver}', 'App\Http\Controllers\Api\DriverController@destroy');
@@ -77,12 +84,14 @@ Route::delete('jadwal/{id_jadwal_pegawai}', 'App\Http\Controllers\Api\JadwalCont
 //Mobil
 Route::get('mobil', 'App\Http\Controllers\Api\MobilController@index');
 Route::get('mobil/{plat_mobil}', 'App\Http\Controllers\Api\MobilController@show');
+Route::get('statusMobil', 'App\Http\Controllers\Api\MobilController@mobilByStatus');
 Route::post('mobil', 'App\Http\Controllers\Api\MobilController@store');
 Route::post('mobil/{plat_mobil}', [MobilController::class,'update']);
 Route::delete('mobil/{plat_mobil}', 'App\Http\Controllers\Api\MobilController@destroy');
 
 //Pegawai
 Route::get('pegawai', 'App\Http\Controllers\Api\PegawaiController@index');
+Route::get('detailJadwalPegawai', 'App\Http\Controllers\Api\PegawaiController@getDetailJadwalPegawai');
 Route::get('pegawai/{id_pegawai}', 'App\Http\Controllers\Api\PegawaiController@show');
 Route::post('pegawai', 'App\Http\Controllers\Api\PegawaiController@store');
 Route::post('pegawai/{id_pegawai}', [PegawaiController::class,'update']);
@@ -97,14 +106,25 @@ Route::delete('detailJadwal/{id_detail_jadwal}', 'App\Http\Controllers\Api\Detai
 
 //Transaksi
 Route::get('transaksi', 'App\Http\Controllers\Api\TransaksiController@index');
+Route::get('transaksiPelanggan/{id_pelanggan}', 'App\Http\Controllers\Api\TransaksiController@showByPelanggan');
+Route::get('transaksiVerifPelanggan/{id_pelanggan}', 'App\Http\Controllers\Api\TransaksiController@showVerifiedByPelanggan');
 Route::get('transaksi/{id_transaksi}', 'App\Http\Controllers\Api\TransaksiController@show');
 Route::post('transaksi', 'App\Http\Controllers\Api\TransaksiController@store');
 Route::post('transaksi/{id_transaksi}', [TransaksiController::class,'update']);
 Route::delete('transaksi/{id_transaksi}', 'App\Http\Controllers\Api\TransaksiController@destroy');
 
+Route::post('transaksiPelanggan/{id_transaksi}', [TransaksiController::class,'updatePelanggan']);
+
 //Detail Transaksi
 Route::get('detailTransaksi', 'App\Http\Controllers\Api\DetailTransaksiController@index');
+Route::get('detailTransaksiPelanggan/{id_pelanggan}', 'App\Http\Controllers\Api\DetailTransaksiController@showByPelanggan');
 Route::get('detailTransaksi/{id_detail_transaksi}', 'App\Http\Controllers\Api\DetailTransaksiController@show');
 Route::post('detailTransaksi', 'App\Http\Controllers\Api\DetailTransaksiController@store');
 Route::post('detailTransaksi/{id_detail_transaksi}', [DetailTransaksiController::class,'update']);
 Route::delete('detailTransaksi/{id_detail_transaksi}', 'App\Http\Controllers\Api\DetailTransaksiController@destroy');
+
+Route::post('detailTransaksiBeforePelanggan/{id_detail_transaksi}', [DetailTransaksiController::class,'updateBeforePelanggan']);
+Route::post('detailTransaksiAfterPelanggan/{id_detail_transaksi}', [DetailTransaksiController::class,'updateAfterPelanggan']);
+
+//PDF Nota Pembayaran
+Route::get('generate-pdf/{id_detail_transaksi}', [NotaPembayaranController::class, 'generatePDF']);

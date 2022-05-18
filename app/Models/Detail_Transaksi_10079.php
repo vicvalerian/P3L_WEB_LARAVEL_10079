@@ -15,7 +15,7 @@ class Detail_Transaksi_10079 extends Model
     protected $fillable = [
         'id_detail_transaksi', 'id_mobil', 'id_driver', 'id_transaksi',
         'tgl_waktu_mulai_sewa', 'tgl_waktu_akhir_sewa', 'tgl_pengembalian', 'jenis_transaksi',
-        'rating_driver_transaksi', 'denda_transaksi', 'jumlah_pembayaran'
+        'rating_driver_transaksi', 'diskon_transaksi', 'denda_transaksi', 'jumlah_pembayaran', 'bukti_pembayaran', 'status_transaksi'
     ];
 
     public function DetailTransaksi_Mobil(){
