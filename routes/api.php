@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\NotaPembayaranController;
 
 //Login
 Route::post('login', 'App\Http\Controllers\Api\LoginController@login');
+Route::post('loginMobile', 'App\Http\Controllers\Api\LoginController@loginMobile');
 
 //Jabatan
 Route::get('jabatan', 'App\Http\Controllers\Api\JabatanController@index');
@@ -65,6 +66,7 @@ Route::get('statusDriver', 'App\Http\Controllers\Api\DriverController@driverBySt
 Route::get('transaksiDriver', 'App\Http\Controllers\Api\DriverController@driverByTransaksi');
 Route::post('driver', 'App\Http\Controllers\Api\DriverController@store');
 Route::post('driver/{id_driver}', [DriverController::class,'update']);
+Route::post('driverMobile/{id_driver}', [DriverController::class,'updateDriverMobile']);
 Route::delete('driver/{id_driver}', 'App\Http\Controllers\Api\DriverController@destroy');
 
 //Pelanggan
@@ -99,6 +101,7 @@ Route::delete('pegawai/{id_pegawai}', 'App\Http\Controllers\Api\PegawaiControlle
 
 //Detail Jadwal
 Route::get('detailJadwal', 'App\Http\Controllers\Api\DetailJadwalController@index');
+Route::get('detailJadwalPegawai/{id_pegawai}', 'App\Http\Controllers\Api\DetailJadwalController@showByPegawai');
 Route::get('detailJadwal/{id_detail_jadwal}', 'App\Http\Controllers\Api\DetailJadwalController@show');
 Route::post('detailJadwal', 'App\Http\Controllers\Api\DetailJadwalController@store');
 Route::post('detailJadwal/{id_detail_jadwal}', [DetailJadwalController::class,'update']);
@@ -118,6 +121,8 @@ Route::post('transaksiPelanggan/{id_transaksi}', [TransaksiController::class,'up
 //Detail Transaksi
 Route::get('detailTransaksi', 'App\Http\Controllers\Api\DetailTransaksiController@index');
 Route::get('detailTransaksiPelanggan/{id_pelanggan}', 'App\Http\Controllers\Api\DetailTransaksiController@showByPelanggan');
+Route::get('detailTransaksiPelangganMobile/{id_pelanggan}', 'App\Http\Controllers\Api\DetailTransaksiController@showByPelangganMobile');
+Route::get('detailTransaksiDriver/{id_driver}', 'App\Http\Controllers\Api\DetailTransaksiController@showByDriver');
 Route::get('detailTransaksi/{id_detail_transaksi}', 'App\Http\Controllers\Api\DetailTransaksiController@show');
 Route::post('detailTransaksi', 'App\Http\Controllers\Api\DetailTransaksiController@store');
 Route::post('detailTransaksi/{id_detail_transaksi}', [DetailTransaksiController::class,'update']);
@@ -128,3 +133,10 @@ Route::post('detailTransaksiAfterPelanggan/{id_detail_transaksi}', [DetailTransa
 
 //PDF Nota Pembayaran
 Route::get('generate-pdf/{id_detail_transaksi}', [NotaPembayaranController::class, 'generatePDF']);
+
+//Laporan
+Route::get('laporanPenyewaanMobil/{from}/{to}', 'App\Http\Controllers\Api\LaporanController@getLaporanPenyewaanMobil');
+Route::get('laporanPendapatanTransaksi/{from}/{to}', 'App\Http\Controllers\Api\LaporanController@getLaporanPendapatanTransaksi');
+Route::get('laporanTop5Driver/{from}/{to}', 'App\Http\Controllers\Api\LaporanController@getLaporanTop5Driver');
+Route::get('laporanTop5Pelanggan/{from}/{to}', 'App\Http\Controllers\Api\LaporanController@getLaporanTop5Pelanggan');
+Route::get('laporanPerformaDriver/{from}/{to}', 'App\Http\Controllers\Api\LaporanController@getLaporanPerformaDriver');

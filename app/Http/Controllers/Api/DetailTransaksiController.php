@@ -14,6 +14,7 @@ use App\Models\Driver_10079;
 use App\Models\Promo_10079;
 use App\Models\Transaksi_10079;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class DetailTransaksiController extends Controller
 {
@@ -28,7 +29,7 @@ class DetailTransaksiController extends Controller
                             ->select('detail__transaksi_10079s.*', 
                                     'transaksi_10079s.id_transaksi', 
                                     'driver_10079s.id_driver', 'driver_10079s.nama_driver', 
-                                    'mobil_10079s.id_mobil', 'mobil_10079s.plat_mobil',
+                                    'mobil_10079s.id_mobil', 'mobil_10079s.plat_mobil', 'mobil_10079s.nama_mobil',
                                     'pelanggan_10079s.id_pelanggan', 'pelanggan_10079s.nama_pelanggan')
                             ->get();
 
@@ -54,7 +55,7 @@ class DetailTransaksiController extends Controller
                             ->select('detail__transaksi_10079s.*', 
                                     'transaksi_10079s.id_transaksi', 
                                     'driver_10079s.id_driver', 'driver_10079s.nama_driver', 
-                                    'mobil_10079s.id_mobil', 'mobil_10079s.plat_mobil',
+                                    'mobil_10079s.id_mobil', 'mobil_10079s.plat_mobil', 'mobil_10079s.nama_mobil',
                                     'pelanggan_10079s.id_pelanggan', 'pelanggan_10079s.nama_pelanggan')
                             ->where('transaksi_10079s.id_pelanggan', '=', $id_pelanggan)
                             ->get();
@@ -62,6 +63,65 @@ class DetailTransaksiController extends Controller
         if(count($detailTransaksi)>0){
             return response ([
                 'message' => 'Retrieve All Detail Transaksi Pelanggan Success',
+                'data' => $detailTransaksi
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Empty',
+            'data' => null
+        ], 400);
+    }
+
+    public function showByPelangganMobile($id_pelanggan){
+        $detailTransaksi = DB::table('detail__transaksi_10079s') 
+                            ->join('transaksi_10079s', 'transaksi_10079s.id_transaksi', '=', 'detail__transaksi_10079s.id_transaksi')
+                            ->leftJoin('driver_10079s', 'driver_10079s.id_driver', '=', 'detail__transaksi_10079s.id_driver')
+                            ->join('mobil_10079s', 'mobil_10079s.id_mobil', '=', 'detail__transaksi_10079s.id_mobil')
+                            ->join('pelanggan_10079s', 'pelanggan_10079s.id_pelanggan', '=', 'transaksi_10079s.id_pelanggan')
+                            ->join('pegawai_10079s', 'pegawai_10079s.id_pegawai', '=', 'transaksi_10079s.id_pegawai')
+                            ->select('detail__transaksi_10079s.*', 
+                                    'transaksi_10079s.id_transaksi', 'transaksi_10079s.id_pegawai', 'transaksi_10079s.metode_pembayaran',
+                                    'driver_10079s.id_driver', 'driver_10079s.nama_driver', 
+                                    'mobil_10079s.id_mobil', 'mobil_10079s.plat_mobil', 'mobil_10079s.nama_mobil',
+                                    'pelanggan_10079s.id_pelanggan', 'pelanggan_10079s.nama_pelanggan',
+                                    'pegawai_10079s.id_pegawai', 'pegawai_10079s.nama_pegawai')
+                            ->where('transaksi_10079s.id_pelanggan', '=', $id_pelanggan)
+                            ->where('detail__transaksi_10079s.status_transaksi', '=', 'Sudah Lunas Sudah Verifikasi')
+                            ->orderBy('transaksi_10079s.id_transaksi', 'DESC')
+                            ->get();
+
+        if(count($detailTransaksi)>0){
+            return response ([
+                'message' => 'Retrieve All Detail Transaksi Pelanggan Success',
+                'data' => $detailTransaksi
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Empty',
+            'data' => null
+        ], 400);
+    }
+
+    public function showByDriver($id_driver){
+        $detailTransaksi = DB::table('detail__transaksi_10079s') 
+                            ->join('transaksi_10079s', 'transaksi_10079s.id_transaksi', '=', 'detail__transaksi_10079s.id_transaksi')
+                            ->leftJoin('driver_10079s', 'driver_10079s.id_driver', '=', 'detail__transaksi_10079s.id_driver')
+                            ->join('mobil_10079s', 'mobil_10079s.id_mobil', '=', 'detail__transaksi_10079s.id_mobil')
+                            ->join('pelanggan_10079s', 'pelanggan_10079s.id_pelanggan', '=', 'transaksi_10079s.id_pelanggan')
+                            ->select('detail__transaksi_10079s.*', 
+                                    'transaksi_10079s.id_transaksi', 
+                                    'driver_10079s.id_driver', 'driver_10079s.nama_driver', 
+                                    'mobil_10079s.id_mobil', 'mobil_10079s.plat_mobil', 'mobil_10079s.nama_mobil',
+                                    'pelanggan_10079s.id_pelanggan', 'pelanggan_10079s.nama_pelanggan')
+                            ->where('driver_10079s.id_driver', '=', $id_driver)
+                            ->where('detail__transaksi_10079s.status_transaksi', '=', 'Sudah Lunas Sudah Verifikasi')
+                            ->get();
+
+        if(count($detailTransaksi)>0){
+            return response ([
+                'message' => 'Retrieve All Detail Transaksi Driver Success',
                 'data' => $detailTransaksi
             ], 200);
         }
@@ -325,6 +385,27 @@ class DetailTransaksiController extends Controller
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);
 
+        //fungsi untuk mengganti ID detail jika jenis transaksi diubah oleh pelanggan
+        //jika awalnya dengan driver dan jenis transaksi tidak diubah
+        if(strcmp($detailTransaksi->jenis_transaksi, 'Dengan Driver') == 0 && strcmp($updateData['jenis_transaksi'], 'Dengan Driver') == 0){
+            $replacedID = $detailTransaksi->id_detail_transaksi;
+        }
+        //jika awalnya tanpa driver dan jenis transaksi tidak diubah
+        else if(strcmp($detailTransaksi->jenis_transaksi, 'Tanpa Driver') == 0 && strcmp($updateData['jenis_transaksi'], 'Tanpa Driver') == 0){
+            $replacedID = $detailTransaksi->id_detail_transaksi;
+        } 
+        //jika awalnya dengan driver dan jenis transaksi diubah
+        else if(strcmp($detailTransaksi->jenis_transaksi, 'Dengan Driver') == 0 && strcmp($updateData['jenis_transaksi'], 'Tanpa Driver') == 0){
+            $string = $detailTransaksi->id_detail_transaksi;
+            $replacedID = Str::replace('01-', '02-', $string);
+        } 
+        //jika awalnya tanpa driver dan jenis transaksi diubah
+        else if(strcmp($detailTransaksi->jenis_transaksi, 'Tanpa Driver') == 0 && strcmp($updateData['jenis_transaksi'], 'Dengan Driver') == 0){
+            $string = $detailTransaksi->id_detail_transaksi;
+            $replacedID = Str::replace('02-', '01-', $string);
+        }
+
+        $detailTransaksi->id_detail_transaksi = $replacedID;
         $detailTransaksi->id_mobil = $updateData['id_mobil'];
         $detailTransaksi->tgl_waktu_mulai_sewa = $updateData['tgl_waktu_mulai_sewa'];
         $detailTransaksi->tgl_waktu_akhir_sewa = $updateData['tgl_waktu_akhir_sewa'];

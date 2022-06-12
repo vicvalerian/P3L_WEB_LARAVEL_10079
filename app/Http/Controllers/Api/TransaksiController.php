@@ -110,7 +110,7 @@ class TransaksiController extends Controller
             'metode_pembayaran' => 'required',
         ]);
 
-        $get_data = Transaksi_10079::orderBy('id_transaksi','DESC')->first();
+        $get_data = Transaksi_10079::orderBy('created_at','DESC')->first();
         if(is_null($get_data)) {
             $id_transaksi = 'NOTA'.date('dmy').'00-'.sprintf('%03d', 1);
         } else {

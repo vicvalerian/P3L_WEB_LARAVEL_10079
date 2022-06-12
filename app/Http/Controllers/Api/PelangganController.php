@@ -8,6 +8,7 @@ use Illuminate\Validation\Rule;
 use Validator;
 use App\Models\Pelanggan_10079;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class PelangganController extends Controller
 {
@@ -46,7 +47,7 @@ class PelangganController extends Controller
     public function store (Request $request){
         $storeData = $request->all();
 
-        $get_data = Pelanggan_10079::orderBy('id_pelanggan','DESC')->first();
+        $get_data = Pelanggan_10079::orderBy('created_at','DESC')->first();
         if(is_null($get_data)) {
             $id_pelanggan = 'CUS'.date('ymd').'-'.sprintf('%03d', 1);
         } else {
@@ -63,8 +64,20 @@ class PelangganController extends Controller
             'email_pelanggan' => 'required|email:rfc,dns|unique:pelanggan_10079s',
             'notelp_pelanggan' => 'required|numeric|digits_between:0,13|starts_with:08',
             'no_ktp_pelanggan' => 'required|numeric|digits:16',
-            'no_sim_pelanggan' => 'nullable|numeric|digits:13'
+            'no_sim_pelanggan' => 'nullable|numeric|digits:13',
+            'foto_ktp_pelanggan' => 'required|max:1024|mimes:jpg,png,jpeg|image',
+            'foto_sim_pelanggan' => 'max:1024|mimes:jpg,png,jpeg|image',
         ]);
+
+        $tempTglLahir = $request->tgl_lahir_pelanggan;
+        $umurPelanggan = Carbon::parse($tempTglLahir)->diff(Carbon::now())->y;
+
+        if($umurPelanggan < 17){
+            return response([
+                'message' => 'Umur pelanggan minimal 17 tahun',
+                'data' => $umurPelanggan
+            ], 400);
+        }
 
         $passwordPelanggan = Hash::make($request->tgl_lahir_pelanggan);
 
@@ -72,6 +85,14 @@ class PelangganController extends Controller
 
         if($validate->fails()){
             return response(['message' => $validate->errors()], 400);
+        }
+
+        $uploadFotoKtpPelanggan = $request->foto_ktp_pelanggan->store('img_ktp_pelanggan', ['disk' => 'public']);
+
+        if(isset($request->foto_sim_pelanggan)){
+            $uploadFotoSimPelanggan = $request->foto_sim_pelanggan->store('img_sim_pelanggan', ['disk' => 'public']);
+        } else{
+            $uploadFotoSimPelanggan = null;
         }
 
         $pelanggan = Pelanggan_10079::create([
@@ -86,7 +107,10 @@ class PelangganController extends Controller
             'no_sim_pelanggan' => $request->no_sim_pelanggan,
             'password_pelanggan' => $passwordPelanggan,
             'status_pelanggan' => $statusPelanggan,
+            'foto_ktp_pelanggan' => $uploadFotoKtpPelanggan,
+            'foto_sim_pelanggan' => $uploadFotoSimPelanggan,
         ]);
+
         return response([
             'message' => 'Add Pelanggan Success',
             'data' => $pelanggan
@@ -137,10 +161,22 @@ class PelangganController extends Controller
             'no_sim_pelanggan' => 'nullable|max:13',
             'password_pelanggan' => 'nullable',
             'status_pelanggan' => 'required',
+            'foto_ktp_pelanggan' => 'max:1024|mimes:jpg,png,jpeg|image',
+            'foto_sim_pelanggan' => 'max:1024|mimes:jpg,png,jpeg|image',
         ]);
 
         if($validate->fails())
             return response(['message' => $validate->errors()], 400);
+
+        $tempTglLahir = $request->tgl_lahir_pelanggan;
+        $umurPelanggan = Carbon::parse($tempTglLahir)->diff(Carbon::now())->y;
+
+        if($umurPelanggan < 17){
+            return response([
+                'message' => 'Umur pelanggan minimal 17 tahun',
+                'data' => $umurPelanggan
+            ], 400);
+        }
 
         $pelanggan->nama_pelanggan = $updateData['nama_pelanggan'];
         $pelanggan->alamat_pelanggan = $updateData['alamat_pelanggan'];
@@ -155,6 +191,16 @@ class PelangganController extends Controller
         if(isset($request->password_pelanggan)){
             $updateData['password_pelanggan'] = bcrypt($request->password_pelanggan);
             $pelanggan->password_pelanggan = $updateData['password_pelanggan'];
+        }
+
+        if(isset($request->foto_ktp_pelanggan)){
+            $uploadFotoKtpPelanggan = $request->foto_ktp_pelanggan->store('img_ktp_pelanggan', ['disk' => 'public']);
+            $pelanggan->foto_ktp_pelanggan = $uploadFotoKtpPelanggan;
+        }
+
+        if(isset($request->foto_sim_pelanggan)){
+            $uploadFotoSimPelanggan = $request->foto_sim_pelanggan->store('img_sim_pelanggan', ['disk' => 'public']);
+            $pelanggan->foto_sim_pelanggan = $uploadFotoSimPelanggan;
         }
 
         if($pelanggan->save()){

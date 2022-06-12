@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('no_ktp_pelanggan', 16); //varchar(16)
             $table->string('no_sim_pelanggan', 16)->nullable(); //varchar(16)
             $table->string('password_pelanggan'); //varchar(50)
+            $table->string('foto_ktp_pelanggan'); //varchar(255)
+            $table->string('foto_sim_pelanggan'); //varchar(255)
             $table->string('status_pelanggan'); //varchar(50)
             $table->timestamps();
         });

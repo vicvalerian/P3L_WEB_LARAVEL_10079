@@ -33,6 +33,29 @@ class DetailJadwalController extends Controller
         ], 400);
     }
 
+    public function showByPegawai($id_pegawai){
+        // $detailJadwal = Detail_Jadwal_10079::all();
+
+        $detailJadwal = DB::table('detail__jadwal_10079s') 
+                        ->join('pegawai_10079s', 'pegawai_10079s.id_pegawai', '=', 'detail__jadwal_10079s.id_pegawai')
+                        ->join('jadwal_10079s', 'jadwal_10079s.id_jadwal_pegawai', '=', 'detail__jadwal_10079s.id_jadwal_pegawai')
+                        ->select('detail__jadwal_10079s.*', 'pegawai_10079s.id_pegawai', 'pegawai_10079s.nama_pegawai', 'jadwal_10079s.*')
+                        ->where('detail__jadwal_10079s.id_pegawai', '=', $id_pegawai)
+                        ->get();
+
+        if(count($detailJadwal)>0){
+            return response ([
+                'message' => 'Retrieve Detail Jadwal Pegawai Success',
+                'data' => $detailJadwal
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Empty',
+            'data' => null
+        ], 400);
+    }
+
     public function show($id_detail_jadwal){
         $detailJadwal = Detail_Jadwal_10079::where('id_detail_jadwal', $id_detail_jadwal)->first();
 

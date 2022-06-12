@@ -103,7 +103,7 @@ class DriverController extends Controller
             'skck_driver' => 'required|max:1024|mimes:jpg,png,jpeg|image'
         ]);
 
-        $get_data = Driver_10079::orderBy('id_driver','DESC')->first();
+        $get_data = Driver_10079::orderBy('created_at','DESC')->first();
         if(is_null($get_data)) {
             $id_driver = 'DRV-'.date('dmy').sprintf('%03d', 1);
         } else {
@@ -252,6 +252,58 @@ class DriverController extends Controller
         $driver->sewa_harian_driver = $updateData['sewa_harian_driver'];
         $driver->status_driver = $updateData['status_driver'];
         $driver->rating_driver = $ratingDriver;
+
+        if(isset($request->password_driver)){
+            $updateData['password_driver'] = bcrypt($request->password_driver);
+            $driver->password_driver = $updateData['password_driver'];
+        }
+
+        if($driver->save()){
+            return response([
+                'message' => 'Update Driver Success',
+                'data' => $driver
+            ], 200);
+        }
+
+        return response([
+            'message' => 'Update Driver Success',
+            'data' => null,
+        ], 400);
+    }
+
+    public function updateDriverMobile(Request $request, $id_driver){
+        $driver = Driver_10079::where('id_driver', $id_driver)->first();
+        if(is_null($driver)){
+            return response([
+                'message' => 'Driver Not Found',
+                'data' => null
+            ], 404);
+        }
+
+        $updateData = $request->all();
+        $validate = Validator::make($updateData, [
+            'nama_driver' => 'nullable|regex:/^[\pL\s]+$/u',
+            'alamat_driver' => 'nullable',
+            'tgl_lahir_driver' => 'nullable|date',
+            'jenis_kelamin_driver' => 'nullable',
+            'bahasa_driver' => 'nullable',
+            'notelp_driver' => 'nullable|numeric|digits_between:0,13|starts_with:08',
+            'email_driver' => ['nullable', 'email:rfc,dns', Rule::unique('driver_10079s')->ignore($driver)],
+            'status_driver' => 'nullable',
+            'password_driver' => 'nullable'
+        ]);
+
+        if($validate->fails())
+            return response(['message' => $validate->errors()], 400);
+
+        $driver->nama_driver = $updateData['nama_driver'];
+        $driver->alamat_driver = $updateData['alamat_driver'];
+        $driver->tgl_lahir_driver = $updateData['tgl_lahir_driver'];
+        $driver->jenis_kelamin_driver = $updateData['jenis_kelamin_driver'];
+        $driver->bahasa_driver = $updateData['bahasa_driver'];
+        $driver->notelp_driver = $updateData['notelp_driver'];
+        $driver->email_driver = $updateData['email_driver'];
+        $driver->status_driver = $updateData['status_driver'];
 
         if(isset($request->password_driver)){
             $updateData['password_driver'] = bcrypt($request->password_driver);

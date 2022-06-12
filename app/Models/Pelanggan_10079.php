@@ -15,7 +15,7 @@ class Pelanggan_10079 extends Model
     protected $fillable = [
         'id_pelanggan', 'nama_pelanggan', 'alamat_pelanggan', 'tgl_lahir_pelanggan',
         'jenis_kelamin_pelanggan', 'email_pelanggan', 'notelp_pelanggan', 'no_ktp_pelanggan',
-        'no_sim_pelanggan', 'password_pelanggan', 'status_pelanggan'
+        'no_sim_pelanggan', 'password_pelanggan', 'foto_ktp_pelanggan', 'foto_sim_pelanggan', 'status_pelanggan'
     ];
 
     public function getCreatedAtAttribute(){
